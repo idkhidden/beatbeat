@@ -1,0 +1,8 @@
+﻿  client.cpp
+D:\Folder\Work\beatbeat\beatbeat-client\client.cpp(72,63): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  Generating code
+  1 of 163 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  beatbeat-client.vcxproj -> D:\Folder\Work\beatbeat\beatbeat-server\x64\Release\beatbeat-client.exe
