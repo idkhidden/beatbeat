@@ -3,9 +3,9 @@ BeatBeat is a straightforward TCP heartbeat system implemented in C++. It featur
 
 ## Features
 
-- Server sends random heartbeat numbers to clients at regular intervals.
-- Clients receive heartbeats and respond with their own random numbers.
-- Automatic disconnection of clients if no response is received within the timeout period.
+- Challenge-Response Mechanism: The server sends random heartbeat challenges to each client, which must reply with their own random numbers. </br>
+- Periodic Heartbeats: The server sends heartbeat challenges at regular intervals to ensure active communication. </br>
+- Automatic Disconnection: Clients are automatically disconnected if the server does not receive a response within the defined timeout period.
 
 ## Showcase
 ![image](https://github.com/user-attachments/assets/5e157190-d4d3-4377-a3e3-60b30efbf0b5)
