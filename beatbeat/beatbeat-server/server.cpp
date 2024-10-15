@@ -10,56 +10,57 @@
 using namespace std;
 
 #define PORT 1337
-#define HEARTBEAT_INTERVAL 3
-#define RECEIVE_TIMEOUT 3 
+#define SEND_INTERVAL 3
+#define RECEIVE_INTERVAL 3 
 
-void handleclient(SOCKET clientSocket)
+void handleclient(SOCKET clientsocket)
 {
-    char buffer[1024] = { 0 };
-    sockaddr_in clientAddr;
-    int addrLen = sizeof(clientAddr);
-    getpeername(clientSocket, (struct sockaddr*)&clientAddr, &addrLen);
+    char clientbuffer[1024] = { 0 };
+    sockaddr_in client;
+    int addrlen = sizeof(client);
+    getpeername(clientsocket, (struct sockaddr*)&client, &addrlen);
     cout << "[ beatbeat server ] client connected\n";
 
     random_device rd;
     mt19937 eng(rd());
-    uniform_int_distribution<> distr(1, 100);
+    uniform_int_distribution<> distr(1, 10000000);
 
     while (true)
     {
         int randomNum = distr(eng);
-        string msg = to_string(randomNum) + "\n";
-        send(clientSocket, msg.c_str(), msg.size(), 0);
+        string heartbeatserver = to_string(randomNum) + "\n";
+        send(clientsocket, heartbeatserver.c_str(), heartbeatserver.size(), 0);
         cout << "[ beatbeat server ] heartbeat sent -> " << randomNum << endl;
 
-        DWORD timeout = RECEIVE_TIMEOUT * 1000;
-        setsockopt(clientSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
+        DWORD timeout = RECEIVE_INTERVAL * 1000;
+        setsockopt(clientsocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
 
-        int valRead = recv(clientSocket, buffer, sizeof(buffer), 0);
-        if (valRead > 0)
+        int heartbeatclient = recv(clientsocket, clientbuffer, sizeof(clientbuffer), 0);
+        if (heartbeatclient > 0)
         {
-            cout << "[ beatbeat server ] heartbeat received -> " << buffer;
+            cout << "[ beatbeat server ] heartbeat received -> " << clientbuffer;
         }
         else
         {
             cout << "[ beatbeat server ] failed to receive heartbeat\n";
+            cout << "[ beatbeat server ] client disconnected\n";
             break; 
         }
 
-        this_thread::sleep_for(chrono::seconds(HEARTBEAT_INTERVAL));
+        this_thread::sleep_for(chrono::seconds(SEND_INTERVAL));
     }
 
-    closesocket(clientSocket);
+    closesocket(clientsocket);
 }
 
 int main()
 {
     WSADATA wsadata;
     SOCKET serversocket;
-    SOCKET   clientsocket;
+    SOCKET clientsocket;
     sockaddr_in server;
     sockaddr_in client;
-    int addrLen = sizeof(server);
+    int addrlen = sizeof(server);
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons(PORT);
@@ -99,7 +100,7 @@ int main()
 
     cout << "[ beatbeat server ] server listening -> " << PORT << endl;
 
-    while ((clientsocket = accept(serversocket, (struct sockaddr*)&client, &addrLen)) != INVALID_SOCKET)
+    while ((clientsocket = accept(serversocket, (struct sockaddr*)&client, &addrlen)) != INVALID_SOCKET)
     {
         thread(handleclient, clientsocket).detach();
     }
