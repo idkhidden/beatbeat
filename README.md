@@ -10,6 +10,9 @@ BeatBeat is a straightforward TCP heartbeat system implemented in C++. It featur
 ## Showcase
 ![image](https://github.com/user-attachments/assets/5e157190-d4d3-4377-a3e3-60b30efbf0b5)
 
+## Todo(Maybe if i am not lazy) 
+- Add some basic anti emulation techniques
+
 
 ## License
 BeatBeat is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
