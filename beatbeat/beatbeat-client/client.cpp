@@ -11,13 +11,45 @@ using namespace std;
 
 #define PORT 1337
 
+void handleserver(SOCKET clientsocket)
+{
+    char severbuffer[1024] = { 0 };
+    random_device rd;
+    mt19937 eng(rd());
+    uniform_int_distribution<> distr(1, 10000000);
+
+    cout << "[ beatbeat client ] connected to server!\n";
+    while (true)
+    {
+        int heartbeatserver = recv(clientsocket, severbuffer, sizeof(severbuffer), 0);
+
+        if (heartbeatserver > 0)
+        {
+            cout << "[ beatbeat client ] heartbeat received!\n";
+
+            int randomheartbeat = distr(eng);
+            string heartbeatclient = to_string(randomheartbeat) + "\n";
+
+            send(clientsocket, heartbeatclient.c_str(), heartbeatclient.size(), 0);
+            cout << "[ beatbeat client ] heartbeat sent!\n";
+        }
+        else
+        {
+            cout << "[ beatbeat client ] server disconnected\n";
+            break;
+        }
+
+        this_thread::sleep_for(chrono::seconds(1));
+    }
+
+    closesocket(clientsocket);
+}
 
 int main()
 {
     WSADATA wsadata;
     SOCKET clientsocket;
     sockaddr_in server;
-    char buffer[1024] = { 0 };
     server.sin_family = AF_INET;
     server.sin_port = htons(PORT);
 
@@ -53,36 +85,7 @@ int main()
         return 1;
     }
 
-    random_device rd;
-    mt19937 eng(rd());
-    uniform_int_distribution<> distr(1, 100);
+    handleserver(clientsocket);
 
-    cout << "[ beatbeat client ] connected to server!\n";
-    while (true)
-    {
-        int heartbeat = recv(clientsocket, buffer, sizeof(buffer), 0);
-        
-        if (heartbeat > 0)
-        {
-            cout << "[ beatbeat client ] heartbeat received!\n";
-
-            int randomheartbeat = distr(eng);
-            string response = to_string(randomheartbeat) + "\n";
-
-            send(clientsocket, response.c_str(), response.size(), 0);
-            cout << "[ beatbeat client ] heartbeat sent!\n";
-        }
-        else
-        {
-            cout << "[ beatbeat client ] server disconnected\n";
-            Sleep(2000);
-            return 1;
-        }
-
-        this_thread::sleep_for(chrono::seconds(1));
-    }
-
-    closesocket(clientsocket);
-    WSACleanup();
     return 0;
 }
